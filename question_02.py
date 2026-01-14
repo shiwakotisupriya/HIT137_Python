@@ -1,6 +1,11 @@
-'''
-Assignment 2 - Question 2
-'''
+"""
+Group Name: SYDN 52
+Group Members:
+Supriya Shiwakoti - s399239
+Anil Bhusal - s399244
+Sabin Gautam - s399243
+Sanjaya Thapa - s399408
+"""
 
 
 from __future__ import annotations
@@ -219,14 +224,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-
-''' 
-Refrences:
-Perplexity AI ChatGPT
-Prompt used: how can i combine multiple CSV files into a single pandas DataFrame in Python?
-
-ChatGPT: https://chat.openai.com/
-Prompt: how can i determine which weather stations have
- the most stable and most variable temperatures using standard deviation in Python
-'''
