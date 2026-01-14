@@ -128,7 +128,7 @@ def main():
         print("Error: Invalid input. Please enter integers.")
         return
     
-    print(f"\nProcessing with shift1={shift1}, shift2={shift2}")
+    print(f"Processing with shift1={shift1}, shift2={shift2}")
     
     if not file_encription("raw_text.txt", "encript_file.txt", "encryption_rules.txt", shift1, shift2):
         return
