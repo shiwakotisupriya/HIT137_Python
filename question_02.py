@@ -18,7 +18,7 @@ import pandas as pd
 import numpy as np
 
 
-# Always resolve paths relative to THIS script location (fixes your error)
+# resolving paths relative to THIS script location
 BASE_DIR = Path(__file__).resolve().parent
 
 DATA_FOLDER = BASE_DIR / "question2_data"        # creating the folder that contains all the  CSV files
@@ -32,19 +32,18 @@ MONTHS = [
     "July", "August", "September", "October", "November", "December"
 ]
 
-AU_SEASONS = {
+AUS_SEASONS = {
     "Summer": ["December", "January", "February"],
     "Autumn": ["March", "April", "May"],
     "Winter": ["June", "July", "August"],
     "Spring": ["September", "October", "November"],
 }
 
-SEASON_ORDER = ["Summer", "Autumn", "Winter", "Spring"]
+AUS_Season_oder = ["Summer", "Autumn", "Winter", "Spring"]
 
 
-# ---------------------------
-# Load all the CSV files 
-# ---------------------------
+# Loading all the CSV files 
+
 def load_all_years(folder_path: Path) -> pd.DataFrame:
     csv_paths = sorted(folder_path.glob("*.csv"))
     if not csv_paths:
@@ -55,7 +54,7 @@ def load_all_years(folder_path: Path) -> pd.DataFrame:
 
     frames = []
     for p in csv_paths:
-        # low_memory=False avoids dtype guessing issues in some CSVs
+        #  avoiding type guessing issues in some CSVs
         frames.append(pd.read_csv(p, low_memory=False))
 
     combined_df = pd.concat(frames, ignore_index=True)
@@ -67,9 +66,7 @@ def ensure_output_folder(folder_path: Path) -> None:
 
 
 
-# The original data has one column per month (wide format)
-# This helper reshapes the data into a long format,
-# making it much easier to group, filter, and calculate statistics
+# The original data has one column per month (wide format)and  making it much easier to group, filter, and calculate statistics
 
 def to_long_temperatures(df: pd.DataFrame) -> pd.DataFrame:
     month_cols = [m for m in MONTHS if m in df.columns]
@@ -90,22 +87,18 @@ def to_long_temperatures(df: pd.DataFrame) -> pd.DataFrame:
         value_name="temp",
     )
 
-    # Ensure numeric and ignore missing/non-numeric values safely
+    # Ensuring the numeric and ignore missing/non-numeric values safely
     long_df["temp"] = pd.to_numeric(long_df["temp"], errors="coerce")
     long_df = long_df.dropna(subset=["temp"])
 
     return long_df
 
 
-# ---------------------------
-# Seasonal averages to Collects temperatures from all stations and years and calculates the average for each season.
-# ---------------------------
-
-
+# collect temperatures from all stations and years and calculates the average for each season
 def compute_seasonal_averages(df: pd.DataFrame) -> dict[str, float]:
     long_df = to_long_temperatures(df)
 
-    month_to_season = {m: s for s, months in AU_SEASONS.items() for m in months}
+    month_to_season = {m: s for s, months in AUS_SEASONS.items() for m in months}
     long_df["season"] = long_df["month"].map(month_to_season)
 
     seasonal_avg = (
@@ -115,20 +108,15 @@ def compute_seasonal_averages(df: pd.DataFrame) -> dict[str, float]:
         .to_dict()
     )
 
-    return {s: seasonal_avg[s] for s in SEASON_ORDER if s in seasonal_avg}
+    return {s: seasonal_avg[s] for s in AUS_Season_oder if s in seasonal_avg}
 
 
 def save_seasonal_averages(seasonal_avg: dict[str, float], out_path: Path) -> None:
     with out_path.open("w", encoding="utf-8") as f:
-        for season in SEASON_ORDER:
+        for season in AUS_Season_oder:
             if season in seasonal_avg:
                 f.write(f"{season}: {seasonal_avg[season]:.1f}°C\n")
-
-
-# ---------------------------
-# Largest Temperature Range:
-# Finds the difference between the highest and lowest also temperature recorded at each station
-# ---------------------------
+# Finding the difference between the highest and lowest temperature recorded at each station
 
 def compute_largest_temp_range_stations(df: pd.DataFrame):
     long_df = to_long_temperatures(df)
@@ -162,19 +150,14 @@ def save_large_temp(winners, out_path: Path) -> None:
             )
 
 
-# ---------------------------
-# Temperature Stability:
-# Uses standard deviation to identify the most stable and most variable weather stations.
-# ---------------------------
-
-
+#  Using the standard deviation to identify the most stable and most variable weather stations
 def compute_temperature_stability(df: pd.DataFrame):
     long_df = to_long_temperatures(df)
 
     if STATION_COL not in long_df.columns:
         raise KeyError(f"Missing required column: {STATION_COL}")
 
-    # std with ddof=1 (pandas default). If a station has 1 value, std becomes NaN -> drop it.
+    
     station_std = long_df.groupby(STATION_COL)["temp"].std().dropna()
 
     min_std = station_std.min()
@@ -194,19 +177,17 @@ def save_temperature_stability(most_stable, most_variable, out_path: Path) -> No
             f.write(f"Most Variable: Station {station}: StdDev {std_val:.1f}°C\n")
 
 
-# ---------------------------
-# MAIN 
-# ---------------------------
+
 def main():
     ensure_output_folder(OUTPUT_FOLDER)
 
     df_all = load_all_years(DATA_FOLDER)
 
-    # Seasonal Averages
+    #  calculating the Seasonal Averages
     seasonal_avg = compute_seasonal_averages(df_all)
     save_seasonal_averages(seasonal_avg, OUTPUT_FOLDER / "average_temp.txt")
 
-    # Largest Temperature Range
+    # calculating the Largest Temperature Range
     winners = compute_largest_temp_range_stations(df_all)
     save_large_temp(winners, OUTPUT_FOLDER / "largest_temp_range_station.txt")
 
@@ -218,7 +199,7 @@ def main():
         OUTPUT_FOLDER / "temperature_stability_stations.txt",
     )
 
-    print("Done! Results saved in:", OUTPUT_FOLDER)
+    print("Successfully Results Saved:", OUTPUT_FOLDER)
 
 
 if __name__ == "__main__":
